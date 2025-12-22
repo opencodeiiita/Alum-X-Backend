@@ -40,19 +40,20 @@ The backend should be designed with **enterprise-grade practices**, making it id
 
 ### 👤 User Management
 - Student, Alumni, and Professor roles
+- JWT based login using email & password
 - OAuth2 login (Google, LinkedIn)
-- College email verification
 - Profile completion with skills, interests, experience
 
 ### 🧑‍🏫 Mentorship System
 - Students can request alumni as mentors
+- Chat functionality is available between mentor and mentee.
 - Alumni can accept or reject mentorship
 - Professors can act as moderators/proctors
 
 ### 📝 Alumni Blogs
 - Alumni can write experience-based blog posts
 - Students can like, comment, and engage
-- Feed ranking based on engagement
+- Feed ranking based on engagement like LinkedIn/Reddit
 
 ### 🔍 Smart Alumni Search
 - Search alumni by:
@@ -64,8 +65,8 @@ The backend should be designed with **enterprise-grade practices**, making it id
 
 ### 📄 Resume Builder
 - AI-assisted resume generation
-- Uses user-provided Gmail API key
-- Auto-fill from AlumX profile
+- Uses user-provided API key
+- Auto-fill details, skills from AlumX profile
 
 ---
 
@@ -101,13 +102,13 @@ Spring Boot API Gateway
 ## ⚡ Tech Stack
 
 ### Backend
-- **Spring Boot 3**
+- **Spring Boot 4**
 - **Spring Security + OAuth2**
 - **Spring Data JPA**
 - **Hibernate**
 
 ### Databases
-- **PostgreSQL** – Primary database
+- **MySQL** – Primary database
 - **Redis** – Caching & session management
 - **Vector DB (Pinecone / Weaviate / FAISS)** – AI search
 
