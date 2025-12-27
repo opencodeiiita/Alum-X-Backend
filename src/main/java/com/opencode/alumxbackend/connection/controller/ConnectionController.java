@@ -15,14 +15,10 @@ public class ConnectionController {
 
     private final ConnectionService connectionService;
 
-    // Simulating "Logged in user" via Header for this task since full Auth context
-    // isn't fully visible/standardized yet.
-    // In a real scenario, this would come from SecurityContextHolder.
-    // Using a header allows testing via Postman easily.
     @PostMapping("/{targetUserId}/connect")
-    public ResponseEntity<?> sendConnectionRequest(
+    public ResponseEntity<Map<String, String>> sendConnectionRequest(
             @PathVariable Long targetUserId,
-            @RequestHeader(value = "X-USER-ID") Long senderId) {
+            @RequestHeader("X-USER-ID") Long senderId) {
 
         try {
             connectionService.sendConnectionRequest(senderId, targetUserId);
