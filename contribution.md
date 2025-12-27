@@ -42,3 +42,4 @@ Thanks to all the amazing people who have contributed to **AlumX's Backend Repos
 - Satwik Santosh (@DeadlySatwik)
 - Aiyaan Mahajan (@Aiyaan-Mahajan)
 - Yuvaraj Ragothaman (@LevelSilence)
+- Harshit Sethi (@HarshitRSethi)
