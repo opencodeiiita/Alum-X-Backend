@@ -22,31 +22,22 @@ public class JobPostController {
     private static final Logger logger = Logger.getLogger(JobPostController.class.getName());
 
 
-
     @PostMapping
     public ResponseEntity<?> createJobPost(
             @RequestHeader(value = "X-DUMMY-TOKEN", required = false) String token,
             @Valid @RequestBody JobPostRequest request
-    ){
-        // 1. Temporary auth
+    ) {
         if (token == null || !token.equals(DUMMY_TOKEN)) {
-            logger.warning("Unauthorized job post attempt. Token: " + token);
             throw new UnauthorizedAccessException("Unauthorized: Invalid or missing X-DUMMY-TOKEN header");
         }
-        try{
-            logger.info("Processing job post creation for user: " + request.getUsername());
-            JobPost savedPost = jobPostService.createJobPost(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "message", "Job post created successfully",
-                    "postId", savedPost.getPostId(),
-                    "username", savedPost.getUsername(),
-                    "createdAt", savedPost.getCreatedAt()
-            ));
-        }catch (Exception e){
-            logger.severe("Error creating job post: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An internal server error occurred"));
-        }
-    }
 
+        JobPost savedPost = jobPostService.createJobPost(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "message", "Job post created successfully",
+                "postId", savedPost.getPostId(),
+                "username", savedPost.getUsername(),
+                "createdAt", savedPost.getCreatedAt()
+        ));
+    }
 }

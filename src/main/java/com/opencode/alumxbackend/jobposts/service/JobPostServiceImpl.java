@@ -32,21 +32,26 @@ public class JobPostServiceImpl implements JobPostService{
             throw new IllegalArgumentException("Username does not exist: " + request.getUsername());
         }
 
-        if(request.getImageUrls()!=null && request.getImageUrls().size()>5){
-            throw new IllegalArgumentException("Cannot upload more than 5 images");
-        }
         if(request.getDescription().length()>5000 || request.getDescription().isBlank() || request.getDescription().length() < 50){
             throw new IllegalArgumentException("Description must be between 1 and 5000 characters");
-        } 
+        }
 
-        request.getImageUrls().forEach(url -> {
-            try {
-                new URL(url); // will throw MalformedURLException if invalid
-            } catch (MalformedURLException e) {
-                throw new BadRequestException("Invalid image URL: " + url);
-            }
-        });
+        if(request.getImageUrls()!=null  && !request.getImageUrls().isEmpty()){
 
+//        if(request.getImageUrls().size()>5){
+//            throw new IllegalArgumentException("Cannot upload more than 5 images");
+//        }
+            request.getImageUrls().forEach(url->{
+
+
+                try{
+                    new URL(url); // this will chck wether hte url is coorect
+                }
+                catch(MalformedURLException e){
+                    throw new BadRequestException("invalid url: " + url);
+                }
+            });
+        }
         JobPost jobPost = JobPost.builder()
                 .postId(UUID.randomUUID().toString())
                 .username(request.getUsername())
