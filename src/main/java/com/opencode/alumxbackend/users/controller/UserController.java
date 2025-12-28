@@ -81,5 +81,7 @@ public class UserController {
                         return ResponseEntity.badRequest()
                                         .body(Map.of("error", "Invalid Role. Must be STUDENT, ALUMNI, or PROFESSOR."));
                 }
+
+
         }
 }
