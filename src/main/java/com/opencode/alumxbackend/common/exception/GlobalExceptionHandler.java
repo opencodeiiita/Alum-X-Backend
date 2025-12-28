@@ -1,17 +1,15 @@
 package com.opencode.alumxbackend.common.exception;
 
-import com.opencode.alumxbackend.common.exception.Errors.BadRequestException;
-import com.opencode.alumxbackend.common.exception.Errors.ForbiddenException;
-import com.opencode.alumxbackend.common.exception.Errors.ResourceNotFoundException;
-import com.opencode.alumxbackend.common.exception.Errors.UnauthorizedAccessException;
+import com.opencode.alumxbackend.common.exception.Errors.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
-@ControllerAdvice()
+@RestControllerAdvice()
 public class GlobalExceptionHandler{
 
 
@@ -77,6 +75,29 @@ public class GlobalExceptionHandler{
                 java.time.LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidResumeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidResumeException(InvalidResumeException ex){
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "The Resume is Invalid",
+                ex.getMessage(),
+                java.time.LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(ResumeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResumeNotFoundException(ResumeNotFoundException  ex){
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Resume not Found",
+                ex.getMessage(),
+                java.time.LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse,HttpStatus.NOT_FOUND);
     }
 
 

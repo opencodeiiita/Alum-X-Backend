@@ -8,6 +8,6 @@ public record UserProfileDTO(
         String name,
         String email,
         List<String> skills,
-        String education,
+        List<String> education,
         List<String> techStack
 ) {}

@@ -29,18 +29,6 @@ It tells about the detials about the specified user. User has the fields - skill
 - It returns empty list for a field, if field is null, or empty. 
 
 
-## User Service
-
-It handles everything about a user in the system. A user has fields like name, email, username, profile details, and role.  
-
-- It receives a request related to a user.
-- It checks whether the user exists in the system.
-- It allows creating a new user or updating existing user information.
-- It fetches all details of a user when requested.
-- If a field is missing, it returns an empty value for that field.
-
-
-
 ## Resume Service
 
 Enables the user to upload their resume, and get the resume based on the user id.
@@ -49,3 +37,13 @@ Enables the user to upload their resume, and get the resume based on the user id
 - It verifies wheter the file is less than 5MB, and of type pdf or document.
 - It reads the data, and responds with all the fields.
 - It also returns with the resume file, based on the user id.
+
+## Job Post Service
+
+Allows users (especially alumni) to share job opportunities with the community.
+
+- Lets alumni create job posts with all the details.
+- Stores information about internships, full-time jobs, part-time jobs, or contract work  
+- Validates that the post has proper details like minimum 50 characters description
+- Checks if image URLs are valid when users add pictures to job posts
+- Helps students discover career opportunities shared by alumni

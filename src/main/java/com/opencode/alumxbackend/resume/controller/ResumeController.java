@@ -30,17 +30,14 @@ public class ResumeController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> fetchResume(@PathVariable String userId) throws Exception {
+    public ResponseEntity<Void> fetchResume(@PathVariable String userId) {
 
         Resume resume = resumeService.getResumeByUserId(userId);
-        Path path = Path.of(resume.getFilePath());
 
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + resume.getFileName() + "\"")
-                .contentType(MediaType.parseMediaType(resume.getFileType()))
-                .body(resource);
+        return ResponseEntity
+                .status(302)
+                .header(HttpHeaders.LOCATION, resume.getFileUrl())
+                .build();
     }
+
 }

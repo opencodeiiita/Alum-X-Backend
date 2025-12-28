@@ -1,9 +1,10 @@
 package com.opencode.alumxbackend.resume.service;
 
-import com.opencode.alumxbackend.resume.exception.InvalidResumeException;
-import com.opencode.alumxbackend.resume.exception.ResumeNotFoundException;
+import com.opencode.alumxbackend.common.exception.Errors.InvalidResumeException;
+import com.opencode.alumxbackend.common.exception.Errors.ResumeNotFoundException;
 import com.opencode.alumxbackend.resume.model.Resume;
 import com.opencode.alumxbackend.resume.repository.ResumeRepository;
+import com.opencode.alumxbackend.users.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class ResumeService {
         Files.write(new File(filePath).toPath(), file.getBytes());
 
         Resume resume = Resume.builder()
-                .userId(userId)
+                .user(User)
                 .fileName(file.getOriginalFilename())
                 .fileType(contentType)
                 .filePath(filePath)
