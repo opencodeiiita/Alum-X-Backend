@@ -15,13 +15,14 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.opencode.alumxbackend.users.service.UserService;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService; // use service instead of repository
-    private static final String DUMMY_TOKEN = "alumx-dev-token";
+//     private static final String DUMMY_TOKEN = "alumx-dev-token";
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
 
     @PostMapping

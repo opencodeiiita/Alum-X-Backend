@@ -2,7 +2,6 @@ package com.opencode.alumxbackend;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
