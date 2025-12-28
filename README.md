@@ -83,7 +83,7 @@ Spring Boot API Gateway
 - **Hibernate**
 
 ### Databases
-- **MySQL** – Primary database
+- **PostgreSQL** – Primary database
 - **Redis** – Caching & session management
 - **Vector DB (Pinecone / Weaviate / FAISS)** – AI search
 
