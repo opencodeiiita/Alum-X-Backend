@@ -3,6 +3,7 @@ package com.opencode.alumxbackend;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,7 +16,9 @@ import java.sql.Connection;
 @SpringBootApplication
 public class AlumXBackendApplication implements CommandLineRunner {
 
-    private final DataSource dataSource;
+    @Autowired
+    private  DataSource dataSource;
+
 
     public static void main(String[] args) {
 
