@@ -1,6 +1,10 @@
 package com.opencode.alumxbackend.users.model;
 
+<<<<<<< HEAD
 import com.opencode.alumxbackend.jobposts.model.JobPostComment;
+=======
+import com.opencode.alumxbackend.resume.model.Resume;
+>>>>>>> 0d21682 (improved the resume model)
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -107,6 +113,13 @@ public class User {
     @CollectionTable(name = "user_internships", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "internship")
     private List<String> internships;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Resume> resumes;
 
     @PrePersist
     protected void onCreate() {
