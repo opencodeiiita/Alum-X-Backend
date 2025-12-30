@@ -16,4 +16,5 @@ public interface GroupMessageService {
             Long groupId,
             Long userId
     );
+    List<GroupMessageResponse> getAllGroupMessages(Long groupId);
 }

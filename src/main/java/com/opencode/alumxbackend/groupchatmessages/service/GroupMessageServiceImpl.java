@@ -24,6 +24,7 @@ public class GroupMessageServiceImpl implements GroupMessageService {
     private final GroupChatRepository groupChatRepository;
 
     @Override
+
     public GroupMessageResponse sendMessage(
             Long groupId,
             SendGroupMessageRequest request
@@ -94,4 +95,16 @@ public class GroupMessageServiceImpl implements GroupMessageService {
                 .createdAt(message.getCreatedAt())
                 .build();
     }
+    @Override
+    public List<GroupMessageResponse> getAllGroupMessages(Long groupId) {
+        groupChatRepository.findById(groupId)
+            .orElseThrow(() -> new GroupNotFoundException("Group id not found: " + groupId));
+    
+        return messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }           
+}
+
 }
