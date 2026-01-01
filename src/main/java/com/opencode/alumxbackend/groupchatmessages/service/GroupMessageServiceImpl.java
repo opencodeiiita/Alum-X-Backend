@@ -76,14 +76,14 @@ public class GroupMessageServiceImpl implements GroupMessageService {
             Long userId) {
 
         GroupChat group = groupChatRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new GroupNotFoundException("Group not found with id: " + groupId));
 
         boolean isMember = group.getParticipants()
                 .stream()
                 .anyMatch(p -> p.getUserId().equals(userId));
 
         if (!isMember) {
-            throw new RuntimeException("Access denied");
+            throw new UserNotMemberException(userId);
         }
 
         return messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId)
@@ -103,14 +103,36 @@ public class GroupMessageServiceImpl implements GroupMessageService {
     }
 
     @Override
-    public List<GroupMessageResponse> getAllGroupMessages(Long groupId) {
-        groupChatRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group id not found: " + groupId));
+    public Page<GroupMessageResponse> getGroupMessagesWithPagination(Long groupId, Long userId, int page, int size) {
+        // Validate pagination parameters
+        if (page < 0) {
+            throw new IllegalArgumentException("Page index must not be less than zero");
+        }
+        if (size < 1) {
+            throw new IllegalArgumentException("Page size must be greater than zero");
+        }
+        
+        // Validate group exists
+        GroupChat group = groupChatRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found with id: " + groupId));
 
-        return messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId)
+        // Check if user is a member of the group
+        boolean isMember = group.getParticipants()
                 .stream()
-                .map(this::mapToResponse)
-                .toList();
+                .anyMatch(p -> p.getUserId().equals(userId));
+
+        if (!isMember) {
+            throw new UserNotMemberException(userId);
+        }
+
+        // Create pageable with sorting by createdAt ascending
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+
+        // Fetch paginated messages
+        Page<GroupMessage> messagePage = messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId, pageable);
+
+        // Map to response DTOs
+        return messagePage.map(this::mapToResponse);
     }
 
     @Override

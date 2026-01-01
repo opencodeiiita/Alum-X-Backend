@@ -13,4 +13,6 @@ public interface GroupMessageRepository extends JpaRepository<GroupMessage, Long
     boolean existsById(Long id);
 
     Page<GroupMessage> findByGroupIdAndContentContainingIgnoreCase(Long groupId, String content, Pageable pageable);
+    
+    Page<GroupMessage> findByGroupIdOrderByCreatedAtAsc(Long groupId, Pageable pageable);
 }

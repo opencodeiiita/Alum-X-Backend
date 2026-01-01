@@ -1,24 +1,15 @@
 package com.opencode.alumxbackend.groupchatmessages.controller;
 
-import com.opencode.alumxbackend.groupchat.repository.GroupChatRepository;
 import com.opencode.alumxbackend.groupchatmessages.dto.GroupMessageResponse;
 import com.opencode.alumxbackend.groupchatmessages.dto.SendGroupMessageRequest;
-import com.opencode.alumxbackend.groupchatmessages.exception.GroupNotFoundException;
 import com.opencode.alumxbackend.groupchatmessages.service.GroupMessageService;
 import jakarta.validation.Valid;
-
-
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -27,7 +18,6 @@ import java.util.List;
 public class GroupMessageController {
 
     private final GroupMessageService service;
-    private final GroupChatRepository groupChatRepository;
 
 
     // user id sends mesesage to a group using a group id
@@ -57,28 +47,16 @@ public ResponseEntity<Void> deleteMessage(
     return ResponseEntity.noContent().build();
 }
 
-    // Add this new endpoint: OPEN API (no auth)
+    // Paginated endpoint with member authorization
     @GetMapping("/{groupId}/messages")
-    public ResponseEntity<List<GroupMessageResponse>> getAllGroupMessages(
-            @PathVariable Long groupId) {
+    public ResponseEntity<Page<GroupMessageResponse>> getGroupMessages(
+            @PathVariable Long groupId,
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         
-        try {
-            // Validate group exists
-            if (!groupChatRepository.existsById(groupId)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.emptyList()); // Empty list for non-existent group
-            }
-            
-            List<GroupMessageResponse> messages = service.getAllGroupMessages(groupId);
-            return ResponseEntity.ok(messages); // Clean list response
-        // Handle exceptions
-        } catch (GroupNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Collections.emptyList());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.emptyList());
-        }
+        Page<GroupMessageResponse> messages = service.getGroupMessagesWithPagination(groupId, userId, page, size);
+        return ResponseEntity.ok(messages);
     }
 
 }
