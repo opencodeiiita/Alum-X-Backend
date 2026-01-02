@@ -11,8 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
-@Getter
-@Setter
 @Table(name = "job_posts")
 public class JobPost {
     @Id
