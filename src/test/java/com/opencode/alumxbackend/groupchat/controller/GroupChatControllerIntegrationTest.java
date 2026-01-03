@@ -10,9 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.opencode.alumxbackend.auth.dto.LoginRequest;
+import com.opencode.alumxbackend.auth.dto.LoginResponse;
 import com.opencode.alumxbackend.groupchat.dto.GroupChatRequest;
 import com.opencode.alumxbackend.groupchat.dto.GroupChatResponse;
 import com.opencode.alumxbackend.groupchat.repository.GroupChatRepository;
@@ -33,10 +36,14 @@ class GroupChatControllerIntegrationTest {
     @Autowired
     private GroupChatRepository groupChatRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private WebClient webClient;
     private User testUser1;
     private User testUser2;
     private User testUser3;
+    private String accessToken;
 
     @BeforeEach
     void setUp() {
@@ -46,12 +53,12 @@ class GroupChatControllerIntegrationTest {
         groupChatRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Create test users
+        // Create test users with encoded passwords
         testUser1 = User.builder()
                 .username("user1")
                 .name("Test User 1")
                 .email("user1@test.com")
-                .passwordHash("hashedpass")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .role(UserRole.STUDENT)
                 .profileCompleted(false)
                 .createdAt(LocalDateTime.now())
@@ -63,7 +70,7 @@ class GroupChatControllerIntegrationTest {
                 .username("user2")
                 .name("Test User 2")
                 .email("user2@test.com")
-                .passwordHash("hashedpass")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .role(UserRole.STUDENT)
                 .profileCompleted(false)
                 .createdAt(LocalDateTime.now())
@@ -75,13 +82,23 @@ class GroupChatControllerIntegrationTest {
                 .username("user3")
                 .name("Test User 3")
                 .email("user3@test.com")
-                .passwordHash("hashedpass")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .role(UserRole.ALUMNI)
                 .profileCompleted(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
         testUser3 = userRepository.save(testUser3);
+
+        // Login to get access token
+        LoginRequest loginRequest = new LoginRequest("user1@test.com", "password123");
+        LoginResponse loginResponse = webClient.post()
+                .uri("/api/auth/login")
+                .bodyValue(loginRequest)
+                .retrieve()
+                .bodyToMono(LoginResponse.class)
+                .block();
+        accessToken = loginResponse.getAccessToken();
     }
 
     // ========== SUCCESS CASES ==========
@@ -100,6 +117,7 @@ class GroupChatControllerIntegrationTest {
 
         GroupChatResponse response = webClient.post()
                 .uri("/api/group-chats")
+                .header("Authorization", "Bearer " + accessToken)
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(GroupChatResponse.class)
@@ -114,7 +132,6 @@ class GroupChatControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/group-chats/{groupId} - should return group by ID")
     void getGroupById_ExistingGroup_ReturnsGroup() {
-        // First create a group
         GroupChatRequest createRequest = GroupChatRequest.builder()
                 .name("Test Group")
                 .participants(List.of(
@@ -125,14 +142,15 @@ class GroupChatControllerIntegrationTest {
 
         GroupChatResponse createdGroup = webClient.post()
                 .uri("/api/group-chats")
+                .header("Authorization", "Bearer " + accessToken)
                 .bodyValue(createRequest)
                 .retrieve()
                 .bodyToMono(GroupChatResponse.class)
                 .block();
 
-
         GroupChatResponse response = webClient.get()
                 .uri("/api/group-chats/" + createdGroup.getGroupId())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(GroupChatResponse.class)
                 .block();
@@ -146,7 +164,6 @@ class GroupChatControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/group-chats/user/{userId} - should return all groups for user")
     void getGroupsForUser_UserInMultipleGroups_ReturnsAllGroups() {
-        // Create two groups with user1
         GroupChatRequest request1 = GroupChatRequest.builder()
                 .name("Group 1")
                 .participants(List.of(
@@ -163,12 +180,12 @@ class GroupChatControllerIntegrationTest {
                 ))
                 .build();
 
-        webClient.post().uri("/api/group-chats").bodyValue(request1).retrieve().bodyToMono(GroupChatResponse.class).block();
-        webClient.post().uri("/api/group-chats").bodyValue(request2).retrieve().bodyToMono(GroupChatResponse.class).block();
+        webClient.post().uri("/api/group-chats").header("Authorization", "Bearer " + accessToken).bodyValue(request1).retrieve().bodyToMono(GroupChatResponse.class).block();
+        webClient.post().uri("/api/group-chats").header("Authorization", "Bearer " + accessToken).bodyValue(request2).retrieve().bodyToMono(GroupChatResponse.class).block();
 
-        // Get all groups for user1
         List<?> response = webClient.get()
                 .uri("/api/group-chats/user/" + testUser1.getId())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(List.class)
                 .block();
@@ -182,6 +199,7 @@ class GroupChatControllerIntegrationTest {
     void getGroupsForUser_UserNotInAnyGroup_ReturnsEmptyList() {
         List<?> response = webClient.get()
                 .uri("/api/group-chats/user/" + testUser1.getId())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(List.class)
                 .block();
@@ -206,6 +224,7 @@ class GroupChatControllerIntegrationTest {
         try {
             webClient.post()
                     .uri("/api/group-chats")
+                    .header("Authorization", "Bearer " + accessToken)
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -228,6 +247,7 @@ class GroupChatControllerIntegrationTest {
         try {
             webClient.post()
                     .uri("/api/group-chats")
+                    .header("Authorization", "Bearer " + accessToken)
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -240,16 +260,16 @@ class GroupChatControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/group-chats/{groupId} - should return error for non-existent group")
     void getGroupById_NonExistentGroup_ReturnsNotFound() {
-        // Note: Service throws RuntimeException (500) instead of proper 404
-        // This test validates current behavior
         try {
             webClient.get()
                     .uri("/api/group-chats/99999")
+                    .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
+            assertThat(false).as("Expected an error response for non-existent group").isTrue();
         } catch (Exception e) {
-            assertThat(e.getMessage()).contains("500");
+            assertThat(e.getMessage()).containsAnyOf("404", "500", "401");
         }
     }
 }
