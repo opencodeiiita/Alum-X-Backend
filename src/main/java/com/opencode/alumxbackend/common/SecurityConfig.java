@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users").permitAll() // Registration
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // WebSocket endpoint
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
@@ -88,6 +89,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users").permitAll() // Registration
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // WebSocket endpoint
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

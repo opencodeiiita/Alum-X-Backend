@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.opencode.alumxbackend.groupchat.model.GroupChat;
@@ -33,6 +34,7 @@ public class GroupMessageServiceImpl implements GroupMessageService {
     private final UserRepository userRepository;
     private final GroupMessageRepository messageRepository;
     private final GroupChatRepository groupChatRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public GroupMessageResponse sendMessage(
@@ -68,7 +70,11 @@ public class GroupMessageServiceImpl implements GroupMessageService {
 
         messageRepository.save(message);
 
-        return mapToResponse(message);
+        // Broadcast message to all subscribers of this group's topic in real-time
+        GroupMessageResponse response = mapToResponse(message);
+        messagingTemplate.convertAndSend("/topic/group/" + groupId, response);
+
+        return response;
     }
 
     @Override
