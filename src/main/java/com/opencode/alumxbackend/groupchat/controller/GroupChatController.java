@@ -50,6 +50,24 @@ public class GroupChatController {
         return ResponseEntity.ok(groups);
     }
 
+    // Add user to group (admin/owner only)
+    @PostMapping("/{groupId}/add-user/{userId}")
+    public ResponseEntity<GroupChatResponse> addUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+        
+        GroupChat updatedGroup = service.addUserToGroup(groupId, userId);
+        return ResponseEntity.ok(mapToResponse(updatedGroup));
+    }
+
+    // Remove user to group (admin/owner only)
+    // @PostMapping("/{groupId}/add-user/{userId}")
+    // public ResponseEntity<GroupChatResponse> removeUserFromGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+        
+    //     GroupChat updatedGroup = service.removeUserFromGroup(groupId, userId);
+    //     return ResponseEntity.ok(mapToResponse(updatedGroup));
+    // }
+
+    
+
     // Helper method to map entity → DTO
     private GroupChatResponse mapToResponse(GroupChat group) {
         return GroupChatResponse.builder()

@@ -1,15 +1,22 @@
 package com.opencode.alumxbackend.groupchat.service;
 
+import com.opencode.alumxbackend.auth.security.UserPrincipal;
 import com.opencode.alumxbackend.groupchat.dto.GroupChatRequest;
 import com.opencode.alumxbackend.groupchat.model.GroupChat;
 import com.opencode.alumxbackend.groupchat.model.Participant;
 import com.opencode.alumxbackend.groupchat.model.Role;
 import com.opencode.alumxbackend.groupchat.repository.GroupChatRepository;
+import com.opencode.alumxbackend.groupchat.repository.ParticipantRepository;
+import com.opencode.alumxbackend.users.model.User;
 import com.opencode.alumxbackend.users.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
+
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +27,7 @@ import java.util.stream.Collectors;
 public class GroupChatServiceImpl implements  GroupChatService {
     private final GroupChatRepository repository;
     private final UserRepository userRepository;
+    private final ParticipantRepository participantRepository;
 
     @Override
     public GroupChat createGroup(GroupChatRequest request) {
@@ -78,5 +86,53 @@ public class GroupChatServiceImpl implements  GroupChatService {
     @Override
     public List<GroupChat> getGroupsForUser(Long userId) {
         return repository.findGroupsByUserId(userId);
+    }
+
+
+    @Override
+    public GroupChat addUserToGroup(Long groupId, Long userId) {
+        // Get current user (from JWT)
+        UserPrincipal principal = (UserPrincipal)
+                SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        Long requesterId = principal.getId();
+
+        GroupChat group = repository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        Participant requester = participantRepository
+                .findByGroupChat_GroupIdAndUserId(groupId, requesterId)
+                .orElseThrow(() ->
+                        new AccessDeniedException("You are not a member of this group")
+                );
+
+        if (requester.getRole() != Role.OWNER &&
+            requester.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Only OWNER or ADMIN can add users");
+        }
+
+        // New member
+        User newMember = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // prevent duplicate participant
+        if (participantRepository
+                .existsByGroupChat_GroupIdAndUserId(groupId, userId)) {
+            throw new RuntimeException("User already in group");
+        }
+
+        // 6️⃣ Add user
+        Participant participant = Participant.builder()
+                .userId(userId)
+                .username(newMember.getUsername())
+                .role(Role.MEMBER)
+                .groupChat(group)
+                .build();
+
+        group.getParticipants().add(participant);
+
+        return repository.save(group);
     }
 }
