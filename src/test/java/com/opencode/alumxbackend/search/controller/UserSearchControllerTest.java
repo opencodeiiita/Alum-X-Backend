@@ -2,10 +2,12 @@ package com.opencode.alumxbackend.search.controller;
 
 import com.opencode.alumxbackend.auth.dto.LoginRequest;
 import com.opencode.alumxbackend.auth.dto.LoginResponse;
+import com.opencode.alumxbackend.notifications.repository.NotificationRepository;
 import com.opencode.alumxbackend.users.dto.UserResponseDto;
 import com.opencode.alumxbackend.users.model.User;
 import com.opencode.alumxbackend.users.model.UserRole;
 import com.opencode.alumxbackend.users.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -24,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -36,6 +40,9 @@ class UserSearchControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private WebClient webClient;
@@ -44,6 +51,8 @@ class UserSearchControllerTest {
     @BeforeEach
     void setup() {
         webClient = WebClient.create("http://localhost:" + port);
+        // Clean up in proper order to avoid foreign key constraints
+        notificationRepository.deleteAll();
         userRepository.deleteAll();
         createUser("johnDoe", "John Doe", "john@test.com");
         createUser("janeSmith", "Jane Smith", "jane@test.com");

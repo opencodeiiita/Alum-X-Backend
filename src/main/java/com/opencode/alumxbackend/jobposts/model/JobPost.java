@@ -30,6 +30,7 @@ public class JobPost {
     private List<String> imageUrls;
 
     @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
     private List<JobPostComment> comments;
     
     @Column(nullable = false, updatable = false)

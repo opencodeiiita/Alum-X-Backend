@@ -4,16 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.opencode.alumxbackend.jobposts.dto.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.opencode.alumxbackend.common.exception.Errors.UnauthorizedAccessException;
-import com.opencode.alumxbackend.jobposts.dto.JobPostRequest;
-import com.opencode.alumxbackend.jobposts.dto.JobPostResponse;
-import com.opencode.alumxbackend.jobposts.dto.PagedPostResponse;
-import com.opencode.alumxbackend.jobposts.dto.PostSearchRequest;
 import com.opencode.alumxbackend.jobposts.model.JobPost;
 import com.opencode.alumxbackend.jobposts.service.JobPostService;
 
@@ -137,4 +134,17 @@ public class JobPostController {
         jobPostService.deletePostByUser(userId, postId);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
     }
+
+    @PostMapping("/jobpost/addcomment/{jobPostId}")
+    public ResponseEntity<CommentResponse> addComment(@PathVariable Long jobPostId, @RequestBody CommentRequest request){
+        CommentResponse response = jobPostService.addComment(jobPostId,request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/jobpost/getcomment/{jobPostId}")
+    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long jobPostId){
+        return ResponseEntity.ok(jobPostService.getCommentsByJobPostId(jobPostId));
+
+    }
+
 }

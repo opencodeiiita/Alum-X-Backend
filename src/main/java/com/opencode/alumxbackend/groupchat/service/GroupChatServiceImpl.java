@@ -6,12 +6,14 @@ import com.opencode.alumxbackend.groupchat.model.Participant;
 import com.opencode.alumxbackend.groupchat.repository.GroupChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GroupChatServiceImpl implements  GroupChatService {
     private final GroupChatRepository repository;
     // private final UserRepository userRepository;

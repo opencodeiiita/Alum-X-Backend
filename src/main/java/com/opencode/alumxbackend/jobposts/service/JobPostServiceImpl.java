@@ -5,9 +5,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.opencode.alumxbackend.jobposts.dto.CommentRequest;
-import com.opencode.alumxbackend.jobposts.dto.PagedPostResponse;
-import com.opencode.alumxbackend.jobposts.dto.PostSearchRequest;
+import com.opencode.alumxbackend.jobposts.dto.*;
 import com.opencode.alumxbackend.jobposts.model.JobPostComment;
 import com.opencode.alumxbackend.jobposts.repository.CommentRepository;
 import com.opencode.alumxbackend.jobposts.model.JobPostLike;
@@ -16,12 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.opencode.alumxbackend.common.exception.Errors.BadRequestException;
 import com.opencode.alumxbackend.common.exception.Errors.ForbiddenException;
 import com.opencode.alumxbackend.common.exception.Errors.ResourceNotFoundException;
-import com.opencode.alumxbackend.jobposts.dto.JobPostRequest;
-import com.opencode.alumxbackend.jobposts.dto.JobPostResponse;
 import com.opencode.alumxbackend.jobposts.model.JobPost;
 import com.opencode.alumxbackend.jobposts.repository.JobPostRepository;
 import com.opencode.alumxbackend.users.model.User;
@@ -31,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class JobPostServiceImpl implements JobPostService {
     private final JobPostLikeRepository jobPostLikeRepository;
     private final JobPostRepository jobPostRepository;
@@ -45,11 +43,11 @@ public class JobPostServiceImpl implements JobPostService {
         return JobPostResponse.fromEntities(posts);
     }
 
-    public void addComment(Long postId, Long userId, CommentRequest request) {
+    public CommentResponse addComment(Long postId, CommentRequest request) {
         JobPost post = jobPostRepository.findById(postId)
                 .orElseThrow(()->new ResourceNotFoundException("job post not found"));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         JobPostComment comment = JobPostComment.builder()
@@ -58,7 +56,16 @@ public class JobPostServiceImpl implements JobPostService {
                 .content(request.content())
                 .build();
 
-        commentRepository.save(comment);
+       JobPostComment savedcomment = commentRepository.save(comment);
+
+
+        return new CommentResponse(
+                savedcomment.getId(),
+                savedcomment.getContent(),
+                user.getUsername(),
+                savedcomment.getCreatedAt()
+        );
+
 
     }
 
@@ -143,5 +150,19 @@ public class JobPostServiceImpl implements JobPostService {
         
         Page<JobPostResponse> responsePage = postPage.map(JobPostResponse::fromEntity);
         return PagedPostResponse.fromPage(responsePage);
+    }
+
+    @Override
+    public List<CommentResponse> getCommentsByJobPostId(Long jobPostId) {
+        JobPost jobPost = jobPostRepository.findById(jobPostId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job post not found"));
+
+        return jobPost.getComments().stream()
+                .map(comment -> new CommentResponse(
+                        comment.getId(),
+                        comment.getContent(),
+                        comment.getUser().getUsername(),
+                        comment.getCreatedAt()
+                )).toList();
     }
 }

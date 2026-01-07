@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(name = "job_post_comments")
@@ -42,6 +43,7 @@ public class JobPostComment {
     @Column(nullable = false, length = 500)
     private String content;
 
+    @CreatedDate
     @Column(nullable = false,updatable = false)
     private LocalDateTime createdAt;
 

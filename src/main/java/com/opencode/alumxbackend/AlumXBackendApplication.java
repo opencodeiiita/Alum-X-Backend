@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
         pattern = "com\\.opencode\\.alumxbackend\\.basics\\..*"
     )
 )
+@EnableTransactionManagement
 public class AlumXBackendApplication implements CommandLineRunner {
 
     private final DataSource dataSource;
