@@ -22,6 +22,10 @@ public class Participant {
     @Column(name = "username", nullable = false)
     private String username;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
     @JsonBackReference

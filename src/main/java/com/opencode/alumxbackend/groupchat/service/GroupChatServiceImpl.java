@@ -3,6 +3,7 @@ package com.opencode.alumxbackend.groupchat.service;
 import com.opencode.alumxbackend.groupchat.dto.GroupChatRequest;
 import com.opencode.alumxbackend.groupchat.model.GroupChat;
 import com.opencode.alumxbackend.groupchat.model.Participant;
+import com.opencode.alumxbackend.groupchat.model.Role;
 import com.opencode.alumxbackend.groupchat.repository.GroupChatRepository;
 import com.opencode.alumxbackend.users.repository.UserRepository;
 
@@ -37,13 +38,23 @@ public class GroupChatServiceImpl implements  GroupChatService {
             throw new RuntimeException("One or more users do not exist");
         }
 
+        boolean ownerPresent = request.getParticipants().stream()
+                .anyMatch(p -> p.getUserId().equals(request.getOwnerId()));
+
+        if (!ownerPresent) {
+            throw new RuntimeException("Owner must be present in participants list");
+        }
+
+
         // Map DTO participants -> Participant entity
         List<Participant> participants = request.getParticipants().stream()
                 .map(p -> {
-
                     return Participant.builder()
                             .userId(p.getUserId())
                             .username(p.getUsername())
+                            .role(p.getUserId().equals(request.getOwnerId())
+                                    ? Role.OWNER
+                                    : Role.MEMBER)
                             .groupChat(group)
                             .build();
 
