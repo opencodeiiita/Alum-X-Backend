@@ -10,9 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.opencode.alumxbackend.auth.dto.LoginRequest;
+import com.opencode.alumxbackend.auth.dto.LoginResponse;
 import com.opencode.alumxbackend.notifications.dto.NotificationRequest;
 import com.opencode.alumxbackend.notifications.dto.NotificationResponse;
 import com.opencode.alumxbackend.notifications.repository.NotificationRepository;
@@ -31,15 +34,15 @@ class NotificationControllerTest {
     private UserRepository userRepository;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private WebClient webClient;
     private User testUser;
+    private String accessToken;
 
     @BeforeEach
     public void setUp() {
-        webClient = WebClient.create("http://localhost:" + port);
-
-        // cleanup: remove notifications first to avoid FK constraint when deleting users
         notificationRepository.deleteAll();
         userRepository.deleteAll();
 
@@ -47,13 +50,26 @@ class NotificationControllerTest {
                 .username("notifyuser")
                 .name("Notify User")
                 .email("notifyuser@example.com")
-                .passwordHash("hashedpass")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .role(UserRole.STUDENT)
                 .profileCompleted(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
         testUser = userRepository.save(testUser);
+
+
+        webClient = WebClient.create("http://localhost:" + port);
+
+        // Login to get access token
+        LoginRequest loginRequest = new LoginRequest("notifyuser@example.com", "password123");
+        LoginResponse loginResponse = webClient.post()
+                .uri("/api/auth/login")
+                .bodyValue(loginRequest)
+                .retrieve()
+                .bodyToMono(LoginResponse.class)
+                .block();
+        accessToken = loginResponse.getAccessToken();
     }
 
     @Test
@@ -67,6 +83,7 @@ class NotificationControllerTest {
 
         NotificationResponse resp = webClient.post()
                 .uri("/api/notifications")
+                .header("Authorization", "Bearer " + accessToken)
                 .bodyValue(req)
                 .retrieve()
                 .bodyToMono(NotificationResponse.class)
@@ -86,7 +103,13 @@ class NotificationControllerTest {
         req.setMessage("Missing userId");
 
         try {
-            webClient.post().uri("/api/notifications").bodyValue(req).retrieve().bodyToMono(String.class).block();
+            webClient.post()
+                    .uri("/api/notifications")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .bodyValue(req)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
         } catch (Exception e) {
             assertThat(e.getMessage()).contains("400");
         }
@@ -101,7 +124,13 @@ class NotificationControllerTest {
         req.setMessage("");
 
         try {
-            webClient.post().uri("/api/notifications").bodyValue(req).retrieve().bodyToMono(String.class).block();
+            webClient.post()
+                    .uri("/api/notifications")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .bodyValue(req)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
         } catch (Exception e) {
             assertThat(e.getMessage()).contains("400");
         }
@@ -110,7 +139,6 @@ class NotificationControllerTest {
     @Test
     @DisplayName("GET /api/notifications - returns notifications for user ordered newest first")
     void getNotifications_returnsOrderedNotifications() {
-        // create two notifications
         NotificationRequest req1 = new NotificationRequest();
         req1.setUserId(testUser.getId());
         req1.setType("INFO");
@@ -121,11 +149,24 @@ class NotificationControllerTest {
         req2.setType("ALERT");
         req2.setMessage("Second notification");
 
-        webClient.post().uri("/api/notifications").bodyValue(req1).retrieve().bodyToMono(NotificationResponse.class).block();
-        webClient.post().uri("/api/notifications").bodyValue(req2).retrieve().bodyToMono(NotificationResponse.class).block();
+        webClient.post()
+                .uri("/api/notifications")
+                .header("Authorization", "Bearer " + accessToken)
+                .bodyValue(req1)
+                .retrieve()
+                .bodyToMono(NotificationResponse.class)
+                .block();
+        webClient.post()
+                .uri("/api/notifications")
+                .header("Authorization", "Bearer " + accessToken)
+                .bodyValue(req2)
+                .retrieve()
+                .bodyToMono(NotificationResponse.class)
+                .block();
 
         List<?> list = webClient.get()
                 .uri("/api/notifications?userId=" + testUser.getId())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(List.class)
                 .block();

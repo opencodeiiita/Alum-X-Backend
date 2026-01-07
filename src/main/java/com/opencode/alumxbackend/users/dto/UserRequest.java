@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 @Data
 @Builder
-@Getter@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {

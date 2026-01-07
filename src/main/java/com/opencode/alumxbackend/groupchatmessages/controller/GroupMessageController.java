@@ -3,6 +3,7 @@ package com.opencode.alumxbackend.groupchatmessages.controller;
 import com.opencode.alumxbackend.groupchatmessages.dto.GroupMessageResponse;
 import com.opencode.alumxbackend.groupchatmessages.dto.SendGroupMessageRequest;
 import com.opencode.alumxbackend.groupchatmessages.service.GroupMessageService;
+import com.opencode.alumxbackend.groupchatreadreceipt.service.GroupReadService;
 import jakarta.validation.Valid;
 
 
@@ -20,7 +21,7 @@ import java.util.List;
 public class GroupMessageController {
 
     private final GroupMessageService service;
-
+     private final GroupReadService groupReadService;
 
     // user id sends mesesage to a group using a group id
     @PostMapping(value="/{groupId}/messages",consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -28,7 +29,9 @@ public class GroupMessageController {
             @PathVariable Long groupId,
             @RequestBody @Valid SendGroupMessageRequest request
     ) {
-        return ResponseEntity.ok(service.sendMessage(groupId, request));
+        GroupMessageResponse message = service.sendMessage(groupId, request);
+        groupReadService.updateLastRead(groupId, request.getUserId(), message.getId());
+        return ResponseEntity.ok(message);
     }
     
     // working: keeping this the same 

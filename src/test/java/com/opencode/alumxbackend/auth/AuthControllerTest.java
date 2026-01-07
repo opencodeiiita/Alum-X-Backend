@@ -2,6 +2,8 @@ package com.opencode.alumxbackend.auth;
 
 import com.opencode.alumxbackend.auth.dto.LoginRequest;
 import com.opencode.alumxbackend.auth.dto.LoginResponse;
+import com.opencode.alumxbackend.jobposts.repository.CommentRepository;
+import com.opencode.alumxbackend.notifications.repository.NotificationRepository;
 import com.opencode.alumxbackend.users.model.User;
 import com.opencode.alumxbackend.users.model.UserRole;
 import com.opencode.alumxbackend.users.repository.UserRepository;
@@ -32,15 +34,28 @@ class AuthControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private WebClient webClient;
     private User testUser;
 
+
+
+    // used for setup before every test method
     @BeforeEach
     void setUp() {
         webClient = WebClient.create("http://localhost:" + port);
-        userRepository.deleteAll();
+
+        // Clean up dependent entities first to avoid foreign key constraint violations
+        commentRepository.deleteAll();
+        notificationRepository.deleteAll();
+        userRepository.deleteAll(); // this line is used to clean teh database
 
         testUser = User.builder()
                 .username("testuser")
@@ -55,10 +70,16 @@ class AuthControllerTest {
         testUser = userRepository.save(testUser);
     }
 
+
+
     @Test
     @DisplayName("Login with valid credentials should return success")
     void loginWithValidCredentials_shouldReturnSuccess() {
-        LoginRequest loginRequest = new LoginRequest("test@example.com", "password123");
+        LoginRequest loginRequest = new LoginRequest(
+                "test@example.com",
+                "password123");
+
+        // we created a new LoginRest( of our exising user )
 
         LoginResponse response = webClient.post()
                 .uri("/api/auth/login")
@@ -66,6 +87,16 @@ class AuthControllerTest {
                 .retrieve()
                 .bodyToMono(LoginResponse.class)
                 .block();
+
+
+
+        System.out.println("========== LOGIN RESPONSE ==========");
+        System.out.println("Access Token     : " + response.getAccessToken());
+        System.out.println("Token Expiry Time: " + response.getTokenExpiryTime());
+        System.out.println("User ID          : " + response.getUser().getId());
+        System.out.println("User Email       : " + response.getUser().getEmail());
+        System.out.println("Username         : " + response.getUser().getUsername());
+        System.out.println("====================================");
 
         assertThat(response).isNotNull();
         assertThat(response.getAccessToken()).isNotNull();

@@ -14,8 +14,6 @@ import com.opencode.alumxbackend.jobposts.model.JobPostComment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,8 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.opencode.alumxbackend.common.exception.Errors.BadRequestException;
-import com.opencode.alumxbackend.users.dto.UserProfileDTO;
-import com.opencode.alumxbackend.users.dto.UserProfileUpdateRequestDto;
+import com.opencode.alumxbackend.users.dto.UserProfileResponse;
+import com.opencode.alumxbackend.users.dto.UserProfileUpdateRequest;
 import com.opencode.alumxbackend.users.dto.UserRequest;
 import com.opencode.alumxbackend.users.dto.UserResponseDto;
 import com.opencode.alumxbackend.users.model.User;
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserProfileDTO getUserProfile(Long id) {
+    public UserProfileResponse getUserProfile(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -93,8 +93,8 @@ public class UserServiceImpl implements UserService {
                 .createdAt(user.getCreatedAt())
                 .build();
     }
-    private UserProfileDTO mapToProfileDTO(User user) {
-        return UserProfileDTO.builder()
+    private UserProfileResponse mapToProfileDTO(User user) {
+        return UserProfileResponse.builder()
                 // Identity
                 .id(user.getId())
                 .username(user.getUsername())
@@ -140,7 +140,10 @@ public class UserServiceImpl implements UserService {
         return list == null ? List.of() : List.copyOf(list);
     }
 
-    public UserProfileDTO updateUserProfile(Long userId, UserProfileUpdateRequestDto request){
+
+
+    @Transactional
+    public UserProfileResponse updateUserProfile(Long userId, UserProfileUpdateRequest request){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

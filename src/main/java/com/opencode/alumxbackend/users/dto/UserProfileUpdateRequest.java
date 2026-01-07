@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserProfileUpdateRequestDto {
+public class UserProfileUpdateRequest {
 
     // Basic
     private String name;

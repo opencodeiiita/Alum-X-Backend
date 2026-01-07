@@ -9,7 +9,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileDTO {
+@ToString
+public class UserProfileResponse {
     // Identity (safe to expose)
     private Long id;
     private String username;
