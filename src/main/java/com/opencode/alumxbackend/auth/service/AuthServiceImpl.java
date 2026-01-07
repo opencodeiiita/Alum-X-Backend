@@ -1,5 +1,6 @@
 package com.opencode.alumxbackend.auth.service;
 
+import com.opencode.alumxbackend.auth.dto.CreateAdminRequest;
 import com.opencode.alumxbackend.auth.dto.LoginRequest;
 import com.opencode.alumxbackend.auth.dto.LoginResponse;
 import com.opencode.alumxbackend.auth.dto.RegisterRequest;
@@ -81,6 +82,11 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Invalid role. Must be STUDENT, ALUMNI, or PROFESSOR.");
         }
 
+        // Block ADMIN role from self-registration
+        if (role == UserRole.ADMIN) {
+            throw new BadRequestException("Cannot register as ADMIN. ADMIN accounts can only be created through authorized channels.");
+        }
+
         if (!registerRequest.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(\\.[A-Za-z]{2,})?$")) {
             throw new BadRequestException("Invalid email format: " + registerRequest.getEmail());
         }
@@ -107,6 +113,50 @@ public class AuthServiceImpl implements AuthService {
                 .role(savedUser.getRole())
                 .createdAt(savedUser.getCreatedAt())
                 .message("User registered successfully")
+                .build();
+    }
+
+    @Override
+    public RegisterResponse createAdmin(CreateAdminRequest createAdminRequest) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(createAdminRequest.getEmail())) {
+            throw new BadRequestException("Email already exists: " + createAdminRequest.getEmail());
+        }
+
+        // Check if username already exists
+        if (userRepository.existsByUsername(createAdminRequest.getUsername())) {
+            throw new BadRequestException("Username already exists: " + createAdminRequest.getUsername());
+        }
+
+        // Validate email format
+        if (!createAdminRequest.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(\\.[A-Za-z]{2,})?$")) {
+            throw new BadRequestException("Invalid email format: " + createAdminRequest.getEmail());
+        }
+
+        // Validate password length
+        if (createAdminRequest.getPassword().length() < 6) {
+            throw new BadRequestException("Password must be at least 6 characters");
+        }
+
+        // Create admin user with ADMIN role
+        User admin = User.builder()
+                .username(createAdminRequest.getUsername())
+                .name(createAdminRequest.getName())
+                .email(createAdminRequest.getEmail())
+                .passwordHash(passwordEncoder.encode(createAdminRequest.getPassword()))
+                .role(UserRole.ADMIN) // Set role to ADMIN server-side
+                .profileCompleted(true)
+                .build();
+
+        User savedAdmin = userRepository.save(admin);
+
+        return RegisterResponse.builder()
+                .userId(savedAdmin.getId())
+                .username(savedAdmin.getUsername())
+                .email(savedAdmin.getEmail())
+                .role(savedAdmin.getRole())
+                .createdAt(savedAdmin.getCreatedAt())
+                .message("Admin created successfully")
                 .build();
     }
 }
