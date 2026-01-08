@@ -248,6 +248,89 @@ class ConnectionControllerIntegrationTest {
         }
     }
 
+    // ========== CANCEL CONNECTION TESTS ==========
+
+    @Test
+    @DisplayName("POST /api/connections/{id}/cancel - sender can cancel pending request")
+    void cancelConnection_AsSender_Success() {
+        Connection connection = createPendingConnection();
+
+        String response = webClient.post()
+                .uri("/api/connections/" + connection.getId() + "/cancel")
+                .header("Authorization", "Bearer " + senderToken)
+                .header("X-USER-ID", sender.getId().toString())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        assertThat(response).contains("cancelled");
+
+        assertThat(connectionRepository.findById(connection.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("POST /api/connections/{id}/cancel - receiver cannot cancel request")
+    void cancelConnection_AsReceiver_Fails() {
+        Connection connection = createPendingConnection();
+
+        try {
+            webClient.post()
+                    .uri("/api/connections/" + connection.getId() + "/cancel")
+                    .header("Authorization", "Bearer " + receiverToken)
+                    .header("X-USER-ID", receiver.getId().toString())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            assertThat(false).as("Expected error when receiver tries to cancel").isTrue();
+        } catch (Exception e) {
+            assertThat(e.getMessage()).containsAnyOf("400", "401", "403", "500");
+        }
+
+        Connection unchanged = connectionRepository.findById(connection.getId()).orElseThrow();
+        assertThat(unchanged.getStatus()).isEqualTo(ConnectionStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("POST /api/connections/{id}/cancel - cannot cancel accepted connection")
+    void cancelConnection_AlreadyAccepted_Fails() {
+        Connection connection = createPendingConnection();
+        connection.setStatus(ConnectionStatus.ACCEPTED);
+        connectionRepository.save(connection);
+
+        try {
+            webClient.post()
+                    .uri("/api/connections/" + connection.getId() + "/cancel")
+                    .header("Authorization", "Bearer " + senderToken)
+                    .header("X-USER-ID", sender.getId().toString())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            assertThat(false).as("Expected error for already accepted connection").isTrue();
+        } catch (Exception e) {
+            assertThat(e.getMessage()).containsAnyOf("400", "401", "500");
+        }
+
+        Connection unchanged = connectionRepository.findById(connection.getId()).orElseThrow();
+        assertThat(unchanged.getStatus()).isEqualTo(ConnectionStatus.ACCEPTED);
+    }
+
+    @Test
+    @DisplayName("POST /api/connections/{id}/cancel - cannot cancel non-existent connection")
+    void cancelConnection_NonExistent_Fails() {
+        try {
+            webClient.post()
+                    .uri("/api/connections/99999/cancel")
+                    .header("Authorization", "Bearer " + senderToken)
+                    .header("X-USER-ID", sender.getId().toString())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            assertThat(false).as("Expected error for non-existent connection").isTrue();
+        } catch (Exception e) {
+            assertThat(e.getMessage()).containsAnyOf("404", "401", "500");
+        }
+    }
+
     // ========== FETCH CONNECTIONS TESTS ==========
 
     @Test

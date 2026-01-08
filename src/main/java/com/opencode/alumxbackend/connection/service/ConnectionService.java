@@ -12,6 +12,8 @@ public interface ConnectionService {
 
     void rejectConnectionRequest(Long connectionId, Long userId);
 
+    void cancelConnectionRequest(Long connectionId, Long userId);
+
     List<Connection> getPendingReceivedRequests(Long userId);
 
     List<Connection> getPendingSentRequests(Long userId);

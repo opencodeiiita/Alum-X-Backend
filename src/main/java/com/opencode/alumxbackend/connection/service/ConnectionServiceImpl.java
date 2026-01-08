@@ -90,6 +90,22 @@ public class ConnectionServiceImpl implements ConnectionService {
     }
 
     @Override
+    public void cancelConnectionRequest(Long connectionId, Long userId) {
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new EntityNotFoundException("Connection not found"));
+
+        if (!connection.getSenderId().equals(userId)) {
+            throw new IllegalStateException("Only the sender can cancel this request");
+        }
+
+        if (connection.getStatus() != ConnectionStatus.PENDING) {
+            throw new IllegalStateException("Cannot cancel connection that is already " + connection.getStatus().name().toLowerCase());
+        }
+
+        connectionRepository.delete(connection);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Connection> getPendingReceivedRequests(Long userId) {
         return connectionRepository.findPendingRequestsForUser(userId, ConnectionStatus.PENDING);

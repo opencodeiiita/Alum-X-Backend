@@ -42,6 +42,12 @@ public class ConnectionController {
         return ResponseEntity.ok("Connection request rejected");
     }
 
+    @PostMapping("/connections/{connectionId}/cancel")
+    public ResponseEntity<?> cancelConnectionRequest(@PathVariable Long connectionId, @RequestHeader("X-USER-ID") Long userId) {
+        connectionService.cancelConnectionRequest(connectionId, userId);
+        return ResponseEntity.ok("Connection request cancelled");
+    }
+
     @GetMapping("/connections/pending/received")
     public ResponseEntity<List<Connection>> getPendingReceivedRequests(@RequestHeader("X-USER-ID") Long userId) {
         return ResponseEntity.ok(connectionService.getPendingReceivedRequests(userId));
