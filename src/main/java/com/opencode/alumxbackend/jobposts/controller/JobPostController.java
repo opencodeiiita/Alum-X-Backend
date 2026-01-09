@@ -4,13 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.opencode.alumxbackend.auth.security.UserPrincipal;
 import com.opencode.alumxbackend.jobposts.dto.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.opencode.alumxbackend.common.exception.Errors.UnauthorizedAccessException;
 import com.opencode.alumxbackend.jobposts.model.JobPost;
 import com.opencode.alumxbackend.jobposts.service.JobPostService;
 
@@ -23,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JobPostController {
     private final JobPostService jobPostService;
-    private static final String DUMMY_TOKEN = "alumx-dev-token";
 
     @GetMapping("/users/{userId}/posts")
     public ResponseEntity<List<JobPostResponse>> getPostsByUser(@PathVariable Long userId) {
@@ -33,13 +33,9 @@ public class JobPostController {
 
     @PostMapping("/job-posts")
     public ResponseEntity<?> createJobPost(
-            @RequestHeader(value = "X-DUMMY-TOKEN", required = false) String token,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody JobPostRequest request
     ) {
-        if (token == null || !token.equals(DUMMY_TOKEN)) {
-            throw new UnauthorizedAccessException("Unauthorized: Invalid or missing X-DUMMY-TOKEN header");
-        }
-
         JobPost savedPost = jobPostService.createJobPost(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
@@ -52,6 +48,7 @@ public class JobPostController {
 
     @PostMapping("/jobs/{postId}/like")
     public ResponseEntity<?> likePost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long postId,
             @RequestParam Long userId
     ) {
@@ -61,14 +58,10 @@ public class JobPostController {
 
     @DeleteMapping("/jobs/{jobId}")
     public ResponseEntity<?> deleteJobPost(
-            @RequestHeader(value = "X-DUMMY-TOKEN", required = false) String token,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long jobId,
             @RequestParam Long userId
     ) {
-        if (token == null || !token.equals(DUMMY_TOKEN)) {
-            throw new UnauthorizedAccessException("Unauthorized: Invalid or missing X-DUMMY-TOKEN header");
-        }
-
         jobPostService.deletePostByUser(userId, jobId);
         return ResponseEntity.ok(Map.of("message", "Job post deleted successfully"));
     }
@@ -88,20 +81,16 @@ public class JobPostController {
                 .page(page)
                 .size(size)
                 .build();
-        
+
         PagedPostResponse response = jobPostService.searchPosts(searchRequest);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/posts")
     public ResponseEntity<?> createPost(
-            @RequestHeader(value = "X-DUMMY-TOKEN", required = false) String token,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody JobPostRequest request
     ) {
-        if (token == null || !token.equals(DUMMY_TOKEN)) {
-            throw new UnauthorizedAccessException("Unauthorized: Invalid or missing X-DUMMY-TOKEN header");
-        }
-
         JobPost savedPost = jobPostService.createJobPost(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
@@ -114,6 +103,7 @@ public class JobPostController {
 
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<?> likePostNew(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long postId,
             @RequestParam Long userId
     ) {
@@ -123,28 +113,26 @@ public class JobPostController {
 
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<?> deletePost(
-            @RequestHeader(value = "X-DUMMY-TOKEN", required = false) String token,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long postId,
             @RequestParam Long userId
     ) {
-        if (token == null || !token.equals(DUMMY_TOKEN)) {
-            throw new UnauthorizedAccessException("Unauthorized: Invalid or missing X-DUMMY-TOKEN header");
-        }
-
         jobPostService.deletePostByUser(userId, postId);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
     }
 
     @PostMapping("/jobpost/addcomment/{jobPostId}")
-    public ResponseEntity<CommentResponse> addComment(@PathVariable Long jobPostId, @RequestBody CommentRequest request){
-        CommentResponse response = jobPostService.addComment(jobPostId,request);
+    public ResponseEntity<CommentResponse> addComment(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long jobPostId,
+            @RequestBody CommentRequest request
+    ) {
+        CommentResponse response = jobPostService.addComment(jobPostId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/jobpost/getcomment/{jobPostId}")
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long jobPostId){
+    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long jobPostId) {
         return ResponseEntity.ok(jobPostService.getCommentsByJobPostId(jobPostId));
-
     }
-
 }
