@@ -18,5 +18,15 @@
     "name": "admin.creation.secret",
     "type": "java.lang.String",
     "description": "A description for 'admin.creation.secret'"
+  },
+  {
+    "name": "spring.ai.openai.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.ai.openai.api-key'"
+  },
+  {
+    "name": "spring.ai.openai.embedding.model",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.ai.openai.embedding.model'"
   }
 ]}
