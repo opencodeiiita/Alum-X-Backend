@@ -35,11 +35,18 @@ public class AlumXBackendApplication implements CommandLineRunner {
                 .ignoreIfMissing()
                 .load();
 
-        System.setProperty("DB_URL", dotenv.get("DB_URL"));
-        System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
-        System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
+        setIfPresent("DB_URL", dotenv.get("DB_URL"));
+        setIfPresent("DB_USERNAME", dotenv.get("DB_USERNAME"));
+        setIfPresent("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
         System.out.println("🔍 DB_URL = " + System.getProperty("DB_URL"));
+
         SpringApplication.run(AlumXBackendApplication.class, args);
+    }
+
+    private static void setIfPresent(String key, String value) {
+        if (value != null && !value.isBlank()) {
+            System.setProperty(key, value);
+        }
     }
 
     @Override

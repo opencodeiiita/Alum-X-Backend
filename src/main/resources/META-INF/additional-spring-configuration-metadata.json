@@ -13,5 +13,10 @@
     "name": "jwt.expiration",
     "type": "java.lang.String",
     "description": "time after with the JWT expires"
+  },
+  {
+    "name": "admin.creation.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'admin.creation.secret'"
   }
 ]}
