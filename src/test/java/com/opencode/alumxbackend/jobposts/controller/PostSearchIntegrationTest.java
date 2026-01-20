@@ -13,11 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,19 +42,20 @@ class PostSearchIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private User testUser;
     private WebClient webClient;
     private String accessToken;
 
     @BeforeEach
     void setUp() {
+        resetDatabase();
+
         webClient = WebClient.builder()
                 .baseUrl("http://localhost:" + port)
                 .build();
-
-        // Clean up
-        jobPostRepository.deleteAll();
-        userRepository.deleteAll();
 
         // Create test user
         testUser = User.builder()
@@ -75,6 +78,11 @@ class PostSearchIntegrationTest {
                 .retrieve()
                 .bodyToMono(LoginResponse.class)
                 .block();
+
+        assertThat(loginResponse)
+                .as("Login should return a token for the freshly created test user")
+                .isNotNull();
+
         accessToken = loginResponse.getAccessToken();
 
         // Create test posts with different descriptions and dates
@@ -99,13 +107,55 @@ class PostSearchIntegrationTest {
         jobPostRepository.save(post);
     }
 
+    /**
+     * Ensure each test starts with a clean slate. H2 keeps the same in-memory DB
+     * for the cached Spring context, so we have to wipe dependent tables that
+     * reference users or job posts before inserting new data.
+     */
+    private void resetDatabase() {
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
+        for (String table : List.of(
+                "chat_read_states",
+                "chats",
+                "connections",
+                "group_chat_participants",
+                "group_chats",
+                "group_messages",
+                "group_read_states",
+                "job_post_comments",
+                "job_post_images",
+                "job_post_likes",
+                "job_posts",
+                "messages",
+                "notifications",
+                "resume",
+                "user_certifications",
+                "user_communication_skills",
+                "user_education",
+                "user_experience",
+                "user_frameworks",
+                "user_hobbies",
+                "user_internships",
+                "user_languages",
+                "user_projects",
+                "user_skills",
+                "user_soft_skills",
+                "user_tech_stack",
+                "users"
+        )) {
+            jdbcTemplate.execute("TRUNCATE TABLE " + table);
+        }
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
+    }
+
     @Test
     void testSearchByKeyword_CaseInsensitive() {
         PagedPostResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/posts/search")
                         .queryParam("keyword", "java")
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .header("Authorization", "Bearer " + accessToken)
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
@@ -163,7 +213,9 @@ class PostSearchIntegrationTest {
                         .path("/api/posts/search")
                         .queryParam("dateFrom", from.toString())
                         .queryParam("dateTo", to.toString())
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -180,7 +232,9 @@ class PostSearchIntegrationTest {
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/posts/search")
                         .queryParam("dateFrom", from.toString())
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -197,7 +251,9 @@ class PostSearchIntegrationTest {
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/posts/search")
                         .queryParam("dateTo", to.toString())
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -217,7 +273,9 @@ class PostSearchIntegrationTest {
                         .queryParam("keyword", "developer")
                         .queryParam("dateFrom", from.toString())
                         .queryParam("dateTo", to.toString())
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -233,7 +291,9 @@ class PostSearchIntegrationTest {
                         .path("/api/posts/search")
                         .queryParam("page", "0")
                         .queryParam("size", "2")
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -256,7 +316,9 @@ class PostSearchIntegrationTest {
                         .path("/api/posts/search")
                         .queryParam("page", "1")
                         .queryParam("size", "2")
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
@@ -276,7 +338,9 @@ class PostSearchIntegrationTest {
                         .path("/api/posts/search")
                         .queryParam("page", "2")
                         .queryParam("size", "2")
-                        .build())                .header("Authorization", "Bearer " + accessToken)                .retrieve()
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
                 .bodyToMono(PagedPostResponse.class)
                 .block();
 
