@@ -108,6 +108,34 @@ Spring Boot API Gateway
 
 ---
 
+## Database Schema (High Level)
+
+### Complete Database Diagram
+
+View the complete, interactive database schema diagram here:
+
+**[AlumX Database Diagram - Interactive View](https://dbdiagram.io/d/database-diagram-695381be39fa3db27bcae256)**
+
+The diagram includes:
+- **9 main entities**: User, Chat, Message, GroupChat, Participant, GroupMessage, JobPost, JobPostComment, JobPostLike, Resume
+- **12 user profile collection tables**: skills, education, tech_stack, languages, frameworks, communication_skills, certifications, projects, soft_skills, hobbies, experience, internships
+- **All relationships** properly mapped with foreign keys and cardinality (1:1, 1:N, N:M)
+- **Indexes and constraints** as defined in the codebase
+
+### Database Tables Overview
+
+The AlumX backend uses the following main entity groups:
+
+1. **User Management** - Core user profiles with role-based access (Student, Alumni, Professor)
+2. **Chat System** - One-on-one messaging between users
+3. **Group Chat** - Multi-user group conversations with participants
+4. **Job Posts** - Alumni experience sharing with engagement features (likes, comments)
+5. **Resume System** - AI-assisted resume management for users
+
+All tables follow proper normalization principles and include appropriate indexes for optimal query performance.
+
+---
+
 ## 🛠️ Project Setup
 This project uses **Spring Boot + PostgreSQL** and reads configuration from **environment variables** to keep secrets out of the codebase.
 

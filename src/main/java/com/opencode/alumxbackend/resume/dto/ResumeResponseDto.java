@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ResumeResponseDto {
-    private String id;
-    private String userId;
+    private Long id;
+    private Long userId;
     private String fileName;
     private String fileType;
 }

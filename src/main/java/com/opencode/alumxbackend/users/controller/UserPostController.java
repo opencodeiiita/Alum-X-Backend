@@ -21,7 +21,7 @@ public class UserPostController {
     @DeleteMapping("/{userId}/posts/{postId}")
     public ResponseEntity<?> deletePostByUser(
             @PathVariable Long userId,
-            @PathVariable String postId
+            @PathVariable Long postId
     ) {
         jobPostService.deletePostByUser(userId, postId);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));

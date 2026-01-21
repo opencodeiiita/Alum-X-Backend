@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 @Data
 @Builder
-@Getter@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
@@ -27,5 +26,7 @@ public class UserRequest {
 
     @NotBlank(message = "Role is required (STUDENT/ALUMNI/PROFESSOR)")
     private String role;
+
+
 
 }

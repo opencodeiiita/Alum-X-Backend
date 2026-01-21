@@ -1,0 +1,117 @@
+{
+  "skills": {
+    "Java": "#E07B39",
+    "Spring Boot": "#4BAF4F",
+    "React": "#61DAFB",
+    "Python": "#306998",
+    "C++": "#00599C",
+    "Kotlin": "#A97BFF",
+    "Flutter": "#02569B",
+    "Node.js": "#83CD29",
+    "MongoDB": "#47A248",
+    "Django": "#092E20",
+    "TensorFlow": "#FF6F61",
+    "PyTorch": "#EE4C2C",
+    "Docker": "#0DB7ED",
+    "Kubernetes": "#326CE5",
+    "Figma": "#A259FF",
+    "Adobe XD": "#FF61F6",
+    "Git": "#F05032"
+  },
+  "techStack": {
+    "MERN": "#FF6F61",
+    "MEAN": "#FFB400",
+    "Spring": "#4BAF4F",
+    "LAMP": "#9B59B6",
+    "Serverless": "#16A085",
+    "DevOps": "#00BFA5",
+    "Data Science": "#FFAB00",
+    "Mobile App": "#2978B5",
+    "UI/UX": "#FF6FCF"
+  },
+  "frameworks": {
+    "Spring MVC": "#4BAF4F",
+    "Express": "#000000",
+    "Angular": "#DD0031",
+    "Vue.js": "#41B883",
+    "Bootstrap": "#7952B3",
+    "Tailwind CSS": "#38B2AC",
+    "TensorFlow": "#FF6F61",
+    "PyTorch": "#EE4C2C",
+    "Flutter": "#02569B"
+  },
+  "languages": {
+    "Java": "#E07B39",
+    "Python": "#306998",
+    "JavaScript": "#F7DF1E",
+    "TypeScript": "#3178C6",
+    "C#": "#239120",
+    "Kotlin": "#A97BFF",
+    "Go": "#00ADD8",
+    "Rust": "#DEA584",
+    "PHP": "#8892BE",
+    "SQL": "#F29111"
+  },
+  "education": {
+    "High School": "#FAD02C",
+    "Bachelor": "#FF6F61",
+    "Master": "#6A0572",
+    "PhD": "#8A2BE2",
+    "Diploma": "#FF8C00",
+    "Certification": "#009688"
+  },
+  "experience": {
+    "Intern": "#F4A261",
+    "Junior": "#2A9D8F",
+    "Mid-level": "#E76F51",
+    "Senior": "#264653",
+    "Lead": "#E9C46A"
+  },
+  "softSkills": {
+    "Communication": "#FFB6B9",
+    "Leadership": "#FF6B6B",
+    "Teamwork": "#4ECDC4",
+    "Problem Solving": "#556270",
+    "Creativity": "#C7F464",
+    "Time Management": "#FF9F1C"
+  },
+  "careerFields": {
+    "AI/ML": {
+      "Machine Learning": "#FF6F61",
+      "Deep Learning": "#EE4C2C",
+      "Data Analysis": "#FFC300",
+      "NLP": "#FF5733"
+    },
+    "DevOps": {
+      "Docker": "#0DB7ED",
+      "Kubernetes": "#326CE5",
+      "CI/CD": "#00BFA5",
+      "AWS": "#FF9900"
+    },
+    "App Development": {
+      "Flutter": "#02569B",
+      "Kotlin": "#A97BFF",
+      "React Native": "#61DAFB",
+      "Swift": "#F05138"
+    },
+    "UI/UX": {
+      "Figma": "#A259FF",
+      "Adobe XD": "#FF61F6",
+      "Prototyping": "#FF9F1C",
+      "Wireframing": "#6C757D"
+    },
+    "Web Development": {
+      "React": "#61DAFB",
+      "Angular": "#DD0031",
+      "Vue.js": "#41B883",
+      "Node.js": "#83CD29"
+    },
+    "Data Science": {
+      "Python": "#306998",
+      "R": "#276DC3",
+      "SQL": "#F29111",
+      "Pandas": "#1E90FF"
+    }
+  }
+}
+

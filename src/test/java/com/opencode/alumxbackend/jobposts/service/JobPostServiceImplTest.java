@@ -1,6 +1,6 @@
 package com.opencode.alumxbackend.jobposts.service;
 
-import com.opencode.alumxbackend.common.exception.ResourceNotFoundException;
+import com.opencode.alumxbackend.common.exception.Errors.ResourceNotFoundException;
 import com.opencode.alumxbackend.jobposts.dto.JobPostResponse;
 import com.opencode.alumxbackend.jobposts.model.JobPost;
 import com.opencode.alumxbackend.jobposts.repository.JobPostRepository;
@@ -55,18 +55,20 @@ class JobPostServiceImplTest {
                 .build();
 
         testPost1 = JobPost.builder()
-                .postId("post-1")
                 .username("testuser")
                 .description("This is the first test job post description")
                 .createdAt(LocalDateTime.now().minusDays(1))
                 .build();
 
+        testPost1.setPostId(1L);
+
         testPost2 = JobPost.builder()
-                .postId("post-2")
                 .username("testuser")
                 .description("This is the second test job post description")
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        testPost2.setPostId(2L);
     }
 
     @Test
@@ -79,8 +81,8 @@ class JobPostServiceImplTest {
         List<JobPostResponse> result = jobPostService.getPostsByUser(1L);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getId()).isEqualTo("post-2");
-        assertThat(result.get(1).getId()).isEqualTo("post-1");
+        assertThat(result.get(0).getId()).isEqualTo(2L);
+        assertThat(result.get(1).getId()).isEqualTo(1L);
         assertThat(result.get(0).getContent()).isEqualTo("This is the second test job post description");
     }
 

@@ -1,7 +1,7 @@
 package com.opencode.alumxbackend.resume.service;
 
-import com.opencode.alumxbackend.resume.exception.InvalidResumeException;
-import com.opencode.alumxbackend.resume.exception.ResumeNotFoundException;
+import com.opencode.alumxbackend.common.exception.Errors.InvalidResumeException;
+import com.opencode.alumxbackend.common.exception.Errors.ResumeNotFoundException;
 import com.opencode.alumxbackend.resume.model.Resume;
 import com.opencode.alumxbackend.resume.repository.ResumeRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ResumeService {
     @Value("${resume.upload.dir}")
     private String uploadDir;
 
-    public void uploadResume(String userId, MultipartFile file) throws Exception {
+    public void uploadResume(Long userId, MultipartFile file) throws Exception {
 
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new InvalidResumeException("File size must be less than 5MB");
@@ -36,21 +36,29 @@ public class ResumeService {
         File directory = new File(uploadDir);
         if (!directory.exists()) directory.mkdirs();
 
-        String filePath = uploadDir + "/" + userId + "_" + file.getOriginalFilename();
+
+        String extension = contentType.equals("application/pdf") ? ".pdf" : ".docx";
+        String filePath = uploadDir + "/" + userId + "_resume" + extension;
+
+        resumeRepository.findByUserId(userId).ifPresent(old -> {
+            File oldFile = new File(old.getFileUrl());
+            if (oldFile.exists()) oldFile.delete();
+        });
+        
         Files.write(new File(filePath).toPath(), file.getBytes());
 
         Resume resume = Resume.builder()
                 .userId(userId)
                 .fileName(file.getOriginalFilename())
                 .fileType(contentType)
-                .filePath(filePath)
+                .fileUrl(filePath)
                 .uploadedAt(LocalDateTime.now())
-                .build();
+                .isActive(true).isDeleted(true).build();
 
         resumeRepository.save(resume);
     }
 
-    public Resume getResumeByUserId(String userId) {
+    public Resume getResumeByUserId(Long userId) {
         return resumeRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResumeNotFoundException("Resume not found"));
     }

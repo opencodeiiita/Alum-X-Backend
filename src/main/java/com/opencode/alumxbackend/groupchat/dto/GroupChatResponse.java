@@ -1,6 +1,6 @@
 package com.opencode.alumxbackend.groupchat.dto;
 
-import com.opencode.alumxbackend.groupchat.model.GroupChat.Participant;
+import com.opencode.alumxbackend.groupchat.model.Participant;
 import lombok.*;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GroupChatResponse {
-    private String groupId;
+    private Long groupId;
     private String name;
     private List<Participant> participants;
 }

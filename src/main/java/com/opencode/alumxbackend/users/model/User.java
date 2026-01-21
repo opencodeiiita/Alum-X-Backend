@@ -5,7 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.List;
+
+import com.opencode.alumxbackend.jobposts.model.JobPostComment;
 
 @Entity
 @Table(name = "users")
@@ -31,6 +32,9 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobPostComment> comments;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
@@ -44,65 +48,86 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "skill")
     private List<String> skills;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_education", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "education")
     private List<String> education;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_tech_stack", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "tech")
     private List<String> techStack;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "language")
     private List<String> languages;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_frameworks", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "framework")
     private List<String> frameworks;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_communication_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "communication_skill")
     private List<String> communicationSkills;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_certifications", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "certification")
     private List<String> certifications;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_projects", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "project")
     private List<String> projects;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_soft_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "soft_skill")
     private List<String> softSkills;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_hobbies", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "hobby")
     private List<String> hobbies;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_experience", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "experience")
     private List<String> experience;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_internships", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "internship")
     private List<String> internships;
+
+    @Column(length = 1000)
+    private String about;
+
+    @Column
+    private String currentCompany;
+
+    @Column(name = "role_current")
+    private String currentRole;
+
+    @Column
+    private String location;
+
+    @Column
+    private String linkedinUrl;
+
+    @Column
+    private String githubUrl;
+
+    @Column
+    private String portfolioUrl;
 
     @PrePersist
     protected void onCreate() {

@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class JobPostResponse {
-    private String id;
+    private Long id;
     private String title;
     private String content;
     private LocalDateTime createdAt;

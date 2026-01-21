@@ -1,0 +1,8 @@
+here is the link:
+https://dbdiagram.io/d/DB-alumx-6953a12239fa3db27bcd93b7
+
+Assumptions:
+
+Logical foreign keys are shown even where JPA does not enforce them explicitly
+
+Username-based fields in code are represented via user_id for relational clarity in documentation

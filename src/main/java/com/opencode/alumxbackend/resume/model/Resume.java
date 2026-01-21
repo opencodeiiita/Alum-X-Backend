@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @Builder
 public class Resume {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(nullable = false)
-    private String userId;
+    @Column(nullable = false, unique = true)
+    private Long userId;
 
     @Column(nullable = false)
     private String fileName;
@@ -27,8 +27,11 @@ public class Resume {
     private String fileType;
 
     @Column(nullable = false)
-    private String filePath;
+    private String fileUrl;
 
+    private Long fileSize;
+    private boolean isActive;
+    private Integer version;
+    private boolean isDeleted;
     private LocalDateTime uploadedAt;
 }
-
