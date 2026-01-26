@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice()
-public class GlobalExceptionHandler{
-
-
+@RestControllerAdvice
+public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex) {
@@ -33,7 +31,7 @@ public class GlobalExceptionHandler{
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Unauthorized",
-                "Authentication failed. Please login to continue.",
+                ex.getMessage() != null ? ex.getMessage() : "Authentication failed. Please login to continue.",
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
@@ -46,7 +44,7 @@ public class GlobalExceptionHandler{
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 "Access Denied",
-                "You do not have permission to perform this action.",
+                ex.getMessage() != null ? ex.getMessage() : "You do not have permission to perform this action.",
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
@@ -86,33 +84,34 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(InvalidResumeException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidResumeException(InvalidResumeException ex){
+    public ResponseEntity<ErrorResponse> handleInvalidResumeException(InvalidResumeException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "The Resume is Invalid",
-                ex.getMessage(),
-                java.time.LocalDateTime.now()
+                "Invalid Resume",
+                ex.getMessage() != null ? ex.getMessage() : "Provided resume file is invalid.",
+                LocalDateTime.now()
         );
-        return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
 
     @ExceptionHandler(ResumeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResumeNotFoundException(ResumeNotFoundException  ex){
+    public ResponseEntity<ErrorResponse> handleResumeNotFoundException(ResumeNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Resume not Found",
-                ex.getMessage(),
-                java.time.LocalDateTime.now()
+                HttpStatus.NOT_FOUND.value(),
+                "Resume Not Found",
+                ex.getMessage() != null ? ex.getMessage() : "Requested resume could not be found.",
+                LocalDateTime.now()
         );
-        return new ResponseEntity<>(errorResponse,HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "Something went wrong. Please try again later.",
+                ex.getMessage() != null ? ex.getMessage() : "Something went wrong. Please try again later.",
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
